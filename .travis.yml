@@ -1,0 +1,47 @@
+language: go
+
+go:
+  - 1.11
+
+before_install:
+  - sudo apt-get update -qq
+
+before_deploy:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y dos2unix
+  - GOARCH=arm GOOS=linux   go build -o coremail-address-book-linux-arm
+  - GOARCH=386 GOOS=linux   go build -o coremail-address-book-linux-386
+  - GOARCH=386 GOOS=darwin  go build -o coremail-address-book-darwin-386
+  - GOARCH=386 GOOS=windows go build -o coremail-address-book-windows-386.exe
+  - GOARCH=amd64 GOOS=linux   go build -o coremail-address-book-linux-amd64
+  - GOARCH=amd64 GOOS=darwin  go build -o coremail-address-book-darwin-amd64
+  - GOARCH=amd64 GOOS=windows go build -o coremail-address-book-windows-amd64.exe
+  - mv README.md README.txt
+  - zip -r coremail-address-book-linux-arm.zip coremail-address-book-linux-arm README.txt
+  - zip -r coremail-address-book-linux-386.zip coremail-address-book-linux-386 README.txt
+  - zip -r coremail-address-book-darwin-386.zip coremail-address-book-darwin-386 README.txt
+  - zip -r coremail-address-book-linux-amd64.zip coremail-address-book-linux-amd64 README.txt
+  - zip -r coremail-address-book-darwin-amd64.zip coremail-address-book-darwin-amd64 README.txt
+  - unix2dos README.txt
+  - zip -r coremail-address-book-windows-386.zip coremail-address-book-windows-386.exe README.txt
+  - zip -r coremail-address-book-windows-amd64.zip coremail-address-book-windows-amd64.exe README.txt
+  - cp coremail-address-book-windows-amd64.exe coremail-address-book.exe
+  - rm coremail-address-book.exe
+  - cp coremail-address-book-windows-386.exe coremail-address-book.exe
+
+deploy:
+  provider: releases
+  api_key: $CI_USER_TOKEN
+  skip_cleanup: true
+  file:
+    - coremail-address-book-linux-arm.zip
+    - coremail-address-book-linux-386.zip
+    - coremail-address-book-darwin-386.zip
+    - coremail-address-book-windows-386.zip
+    - coremail-address-book-linux-amd64.zip
+    - coremail-address-book-darwin-amd64.zip
+    - coremail-address-book-windows-amd64.zip
+  on:
+    tags: true
+    all_branches: true
+    go: 1.11
