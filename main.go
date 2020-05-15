@@ -12,12 +12,14 @@ import (
 )
 
 var (
+	protocol		  string
 	host              string
 	cookieCoreMail    string
 	cookieCoreMailSid string
 )
 
 func init() {
+	flag.StringVar(&protocol, "protocol", "http", "Coremail login url protocol")
 	flag.StringVar(&host, "host", "mail.dlpu.edu.cn", "Coremail host")
 	flag.StringVar(&cookieCoreMail, "coremail_cookie", "", "Coremail value in Request Cookie")
 	flag.StringVar(&cookieCoreMailSid, "coremail_sid", "", "Coremail.sid value in Request Cookie")
@@ -25,7 +27,7 @@ func init() {
 
 func main() {
 	flag.Parse()
-	url := buildUrl(host, cookieCoreMailSid)
+	url := buildURL(protocol, host, cookieCoreMailSid)
 
 	respCount := getResp(url, 0, 1, fmt.Sprintf("Coremail=%s", cookieCoreMail))
 
@@ -53,8 +55,8 @@ func main() {
 	w.Flush()
 }
 
-func buildUrl(host string, sid string) string {
-	return "http://" + host + "/coremail/s/json?func=oab%3AlistEx&sid=" + sid;
+func buildURL(protocol string, host string, sid string) string {
+	return protocol + "://" + host + "/coremail/s/json?func=oab%3AlistEx&sid=" + sid;
 }
 
 func buildPostData(start int, limit int) string {
